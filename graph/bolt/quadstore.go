@@ -267,7 +267,7 @@ func (qs *QuadStore) buildQuadWrite(tx *bolt.Tx, q quad.Quad, id int64, isAdd bo
 		return graph.ErrQuadExists
 	}
 	if !isAdd && len(entry.History)%2 == 0 {
-		glog.Error("attempt to delete non-existent quad %v: %#c", entry, q)
+		glog.Errorf("attempt to delete non-existent quad %v: %#v", entry, q)
 		return graph.ErrQuadNotExist
 	}
 
