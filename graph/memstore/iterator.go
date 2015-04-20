@@ -16,6 +16,7 @@ package memstore
 
 import (
 	"io"
+	"fmt"
 	"math"
 
 	"github.com/google/cayley/graph"
@@ -143,6 +144,8 @@ func (it *Iterator) ResultTree() *graph.ResultTree {
 }
 
 func (it *Iterator) Result() graph.Value {
+	fmt.Println("Result")
+	fmt.Println(it.result)
 	return it.result
 }
 

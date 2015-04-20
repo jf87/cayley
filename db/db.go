@@ -36,6 +36,7 @@ func Init(cfg *config.Config) error {
 	return graph.InitQuadStore(cfg.DatabaseType, cfg.DatabasePath, cfg.DatabaseOptions)
 }
 
+// Process a config object and return a graph.handle for it
 func Open(cfg *config.Config) (*graph.Handle, error) {
 	qs, err := OpenQuadStore(cfg)
 	if err != nil {
@@ -48,8 +49,10 @@ func Open(cfg *config.Config) (*graph.Handle, error) {
 	return &graph.Handle{QuadStore: qs, QuadWriter: qw}, nil
 }
 
+// returns a quadstore for the passed backend type
 func OpenQuadStore(cfg *config.Config) (graph.QuadStore, error) {
 	glog.Infof("Opening quad store %q at %s", cfg.DatabaseType, cfg.DatabasePath)
+	fmt.Println(cfg)
 	qs, err := graph.NewQuadStore(cfg.DatabaseType, cfg.DatabasePath, cfg.DatabaseOptions)
 	if err != nil {
 		return nil, err

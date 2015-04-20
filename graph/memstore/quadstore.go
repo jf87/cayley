@@ -23,7 +23,7 @@ import (
 
 	"github.com/google/cayley/graph"
 	"github.com/google/cayley/graph/iterator"
-	"github.com/google/cayley/graph/memstore/b"
+	"github.com/google/cayley/graph/memstore/b" //NOTE imports the B tree package
 	"github.com/google/cayley/quad"
 )
 
@@ -36,35 +36,62 @@ func init() {
 }
 
 type QuadDirectionIndex struct {
-	index [4]map[int64]*b.Tree
+	index [4]map[int64]*b.Tree // index is a slice of len 4 of a map from int to b.Tree
 }
 
+// Just initializes a new quad with empty map[int64]*b.Tree
 func NewQuadDirectionIndex() QuadDirectionIndex {
-	return QuadDirectionIndex{[...]map[int64]*b.Tree{
-		quad.Subject - 1:   make(map[int64]*b.Tree),
-		quad.Predicate - 1: make(map[int64]*b.Tree),
+	/*
+		nq := QuadDirectionIndex{}
+		fmt.Println(nq.index[0])
+		nq = QuadDirectionIndex{}
+		nq.index[0] = make(map[int64]*b.Tree)
+		nq.index[1] = make(map[int64]*b.Tree)
+		nq.index[2] = make(map[int64]*b.Tree)
+		nq.index[3] = make(map[int64]*b.Tree)
+		fmt.Println(nq.index[0])
+		return nq
+		//sayans["goku"] = 9001
+		fmt.Println(quad.Subject - 1)
+		fmt.Println(quad.Predicate - 1)
+	*/
+	return QuadDirectionIndex{[...]map[int64]*b.Tree{ // ... does not mean we need exactly 3 arguments, just a x number, if no is 0, then nil otherwise slice of type map with length of no of elements
+		quad.Subject - 1:   make(map[int64]*b.Tree), // each line is one row
+		quad.Predicate - 1: make(map[int64]*b.Tree), // we do -1 because Subject starts at 1
 		quad.Object - 1:    make(map[int64]*b.Tree),
 		quad.Label - 1:     make(map[int64]*b.Tree),
 	}}
 }
 
 func (qdi QuadDirectionIndex) Tree(d quad.Direction, id int64) *b.Tree {
+	fmt.Printf("QuadDirectionIndex\n")
 	if d < quad.Subject || d > quad.Label {
 		panic("illegal direction")
 	}
 	tree, ok := qdi.index[d-1][id]
+	fmt.Printf("tree: %v \n", tree)
+	fmt.Printf("ok: %v \n", ok)
 	if !ok {
+		// cmp() is in iterator.go
+		// func cmp(a, b int64) int {
+		// return int(a - b)
+		// }
 		tree = b.TreeNew(cmp)
+		fmt.Printf("adding tree to quadrirection index d-1: %b id: %v \n", d-1, id)
 		qdi.index[d-1][id] = tree
+		fmt.Printf("qdi %v \n", qdi)
 	}
+	fmt.Printf("tree after: %v \n", tree)
 	return tree
 }
 
 func (qdi QuadDirectionIndex) Get(d quad.Direction, id int64) (*b.Tree, bool) {
+	fmt.Printf("GET  d-1: %b id: %v \n", d-1, id)
 	if d < quad.Subject || d > quad.Label {
 		panic("illegal direction")
 	}
 	tree, ok := qdi.index[d-1][id]
+	fmt.Printf("GOT: %v\n", tree)
 	return tree, ok
 }
 
@@ -88,8 +115,9 @@ type QuadStore struct {
 }
 
 func newQuadStore() *QuadStore {
+	fmt.Println("Creating new in memory quadstore")
 	return &QuadStore{
-		idMap:    make(map[string]int64),
+		idMap:    make(map[string]int64), // create a new empty map, from string to int
 		revIDMap: make(map[int64]string),
 
 		// Sentinel null entry so indices start at 1
@@ -128,6 +156,7 @@ func (qs *QuadStore) ApplyDeltas(deltas []graph.Delta, ignoreOpts graph.IgnoreOp
 const maxInt = int(^uint(0) >> 1)
 
 func (qs *QuadStore) indexOf(t quad.Quad) (int64, bool) {
+	fmt.Println("indexOf")
 	min := maxInt
 	var tree *b.Tree
 	for d := quad.Subject; d <= quad.Label; d++ {
@@ -160,26 +189,35 @@ func (qs *QuadStore) indexOf(t quad.Quad) (int64, bool) {
 	return 0, false
 }
 
+// This is called to add a quad to the existing graph
 func (qs *QuadStore) AddDelta(d graph.Delta) error {
+	fmt.Printf("\n\nAddDelta\n")
 	if _, exists := qs.indexOf(d.Quad); exists {
 		return graph.ErrQuadExists
 	}
 	qid := qs.nextQuadID
+	fmt.Printf("qid: %s \n", qid)
 	qs.log = append(qs.log, LogEntry{
 		ID:        d.ID.Int(),
 		Quad:      d.Quad,
 		Action:    d.Action,
 		Timestamp: d.Timestamp})
+	fmt.Printf("we have appended to qs.log: \n ID: %s \n Quad: %s \n Action: %s \n Timestamp: %s \n", d.ID.Int(), d.Quad, d.Action, d.Timestamp)
 	qs.size++
 	qs.nextQuadID++
 
 	for dir := quad.Subject; dir <= quad.Label; dir++ {
+		fmt.Printf("dir %s \n", dir)
 		sid := d.Quad.Get(dir)
+		fmt.Printf("sid %s \n", sid)
 		if dir == quad.Label && sid == "" {
+			fmt.Println("Label is empty, ignore")
 			continue
 		}
 		if _, ok := qs.idMap[sid]; !ok {
+			fmt.Println("putting into map /qs")
 			qs.idMap[sid] = qs.nextID
+			fmt.Printf("%s is stored in %v \n", sid, qs.idMap[sid])
 			qs.revIDMap[qs.nextID] = sid
 			qs.nextID++
 		}
@@ -189,9 +227,15 @@ func (qs *QuadStore) AddDelta(d graph.Delta) error {
 		if dir == quad.Label && d.Quad.Get(dir) == "" {
 			continue
 		}
+		fmt.Println("putting into tree")
 		id := qs.idMap[d.Quad.Get(dir)]
+		fmt.Printf("ID %v \n", id)   // id of this dir (if we have two labels witht he same name, we will have the same ID here!)
+		fmt.Printf("DIR %v \n", dir) // subject, predicate, object, label
+		fmt.Printf("QID %v \n", qid) // ID no of quad
+
 		tree := qs.index.Tree(dir, id)
 		tree.Set(qid, struct{}{})
+		fmt.Printf("Tree %v \n", tree)
 	}
 
 	// TODO(barakmich): Add VIP indexing

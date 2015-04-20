@@ -1,0 +1,28 @@
+<itu> <struct> <4> .
+<4> <struct> <4d> .
+<4d> <struct> <4d21> .
+<4d> <struct> <4d23> .
+<4d23> <struct> <light3> .
+<4d23> <light> <light3> .
+<4d21> <struct> <light1> .
+<4d21> <light> <light1> .
+<4d21> <energy> <light1> .
+<4d21> <struct> <light2> .
+<4d21> <light> <light2> .
+<4d21> <energy> <light2> .
+<light1> <lightout> "800" .
+<light1> <energyin> "10" .
+<light1> <on_off_act> <light1_on_off> .
+<light1_on_off> <value> "1" .
+<light1_on_off> <lighteffect> "1" .
+<light1_on_off> <powereffect> "1" .
+<light1> <brightness_act> <light1_bright> .
+<light1_bright> <value> "70" .
+<light1_bright> <lighteffect> "0.1" .
+<light1_bright> <powereffect> "0.1" .
+<lightout> <description> "Lightoutput in lumen" .
+<energyin> <description> "Energy usage in Watt" .
+<4d21> <struct> <node1> .
+<node1> <sensor> <temp1> .
+<temp1> <value> "42" .
+<temp1> <description> "XYZ Temp Sensor" .

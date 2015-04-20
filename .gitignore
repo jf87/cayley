@@ -1,6 +1,9 @@
 *.swp
 main
+cayley
 *.test
 *.peg.go
 cayley.cfg
 .cayley_history
+tests
+30kmoviedata.nq

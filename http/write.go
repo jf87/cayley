@@ -44,6 +44,11 @@ func ParseJSONToQuadList(jsonBody []byte) ([]quad.Quad, error) {
 	return quads, nil
 }
 
+func ParseJSONLDToQuadList(jsonBody []byte) ([]quad.Quad, error) {
+	//var quads []quad.Quad
+	return nil, nil
+}
+
 func (api *API) ServeV1Write(w http.ResponseWriter, r *http.Request, _ httprouter.Params) int {
 	if api.config.ReadOnly {
 		return jsonResponse(w, 400, "Database is read-only.")
@@ -63,6 +68,23 @@ func (api *API) ServeV1Write(w http.ResponseWriter, r *http.Request, _ httproute
 
 	h.QuadWriter.AddQuadSet(quads)
 	fmt.Fprintf(w, "{\"result\": \"Successfully wrote %d quads.\"}", len(quads))
+	return 200
+}
+
+func (api *API) ServeV2Write(w http.ResponseWriter, r *http.Request, _ httprouter.Params) int {
+	if api.config.ReadOnly {
+		return jsonResponse(w, 400, "Database is read-only.")
+	}
+	var err error
+	err = nil
+	//bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return jsonResponse(w, 400, err)
+	}
+	//quads, err := ParseJSONLDToQuadList(bodyBytes)
+	if err != nil {
+		return jsonResponse(w, 400, err)
+	}
 	return 200
 }
 

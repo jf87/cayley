@@ -68,6 +68,7 @@ func findAssetsPath() string {
 	panic("cannot reach")
 }
 
+// we parse the different api end point functions to this function to decorate them with a logger
 func LogRequest(handler ResponseHandler) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		start := time.Now()
@@ -134,6 +135,7 @@ func (api *API) APIv1(r *httprouter.Router) {
 	r.POST("/api/v1/shape/:query_lang", LogRequest(api.ServeV1Shape))
 	r.POST("/api/v1/write", LogRequest(api.ServeV1Write))
 	r.POST("/api/v1/write/file/nquad", LogRequest(api.ServeV1WriteNQuad))
+	r.POST("/api/v2/write", LogRequest(api.ServeV2Write))
 	//TODO(barakmich): /write/text/nquad, which reads from request.body instead of HTML5 file form?
 	r.POST("/api/v1/delete", LogRequest(api.ServeV1Delete))
 }
@@ -149,7 +151,7 @@ func SetupRoutes(handle *graph.Handle, cfg *config.Config) {
 	root := &TemplateRequestHandler{templates: templates}
 	docs := &DocRequestHandler{assets: assets}
 	api := &API{config: cfg, handle: handle}
-	api.APIv1(r)
+	api.APIv1(r) // initialize the api points
 
 	//m.Use(martini.Static("static", martini.StaticOptions{Prefix: "/static", SkipLogging: true}))
 	//r.Handler("GET", "/static", http.StripPrefix("/static", http.FileServer(http.Dir("static/"))))
