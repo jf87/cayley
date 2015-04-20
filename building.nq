@@ -1,0 +1,14 @@
+<ITU> <struct_contains> <4D21> .
+<4D21> <heat_contains> <radiator1> .
+<4D21> <heat_contains> <radiator2> .
+<4D21> <heat_contains> <radiator3> .
+<4D21> <cool_contains> <window1> .
+<4D21> <cool_contains> <window2> .
+<4D21> <light_contains> <ceilinglight1> .
+<4D21> <light_contains> <ceilinglight2> .
+<4D21> <light_contains> <tablelight1> .
+<4D21> <light_contains> <tablelight2> .
+<4D21> <light_contains> <tablelight3> .
+<4D21> <airflow_contains> <window1> .
+<4D21> <airflow_contains> <window2> <people> .
+<4D21> <people_contains> <jonathan> <people> .

@@ -67,6 +67,7 @@ func (s *Single) AddQuad(q quad.Quad) error {
 	return s.qs.ApplyDeltas(deltas, s.ignoreOpts)
 }
 
+// this is called when adding quads via a POST
 func (s *Single) AddQuadSet(set []quad.Quad) error {
 	deltas := make([]graph.Delta, len(set))
 	for i, q := range set {

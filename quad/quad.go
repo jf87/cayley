@@ -59,12 +59,21 @@ type Direction byte
 
 // List of the valid directions of a quad.
 const (
-	Any Direction = iota
+	Any Direction = iota //Direction sets type to byte
 	Subject
 	Predicate
 	Object
 	Label
 )
+
+func init() {
+
+	fmt.Printf("Any: %b \n", Any)
+	fmt.Printf("Subject: %b \n", Subject)
+	fmt.Printf("Predicate: %b \n", Predicate)
+	fmt.Printf("Object: %b \n", Object)
+	fmt.Printf("Label: %b \n", Label)
+}
 
 func (d Direction) Prefix() byte {
 	switch d {
@@ -118,7 +127,7 @@ func (q Quad) Get(d Direction) string {
 
 // Pretty-prints a quad.
 func (q Quad) String() string {
-	return fmt.Sprintf("%s -- %s -> %s", q.Subject, q.Predicate, q.Object)
+	return fmt.Sprintf("%s -- %s -> %s (%s)", q.Subject, q.Predicate, q.Object, q.Label)
 }
 
 func (q Quad) IsValid() bool {

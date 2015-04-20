@@ -17,6 +17,7 @@ package gremlin
 import (
 	"errors"
 	"fmt"
+	//"runtime/debug"
 	"sort"
 	"time"
 
@@ -88,7 +89,9 @@ func (s *Session) Parse(input string) (query.ParseResult, error) {
 	return query.Parsed, nil
 }
 
+// this is called to run a query
 func (s *Session) runUnsafe(input interface{}) (otto.Value, error) {
+	fmt.Println("runUnsafe")
 	wk := s.wk
 	defer func() {
 		if r := recover(); r != nil {
@@ -132,8 +135,12 @@ func (s *Session) runUnsafe(input interface{}) (otto.Value, error) {
 	return env.Run(input)
 }
 
+/* executing a query at the end
+taking the query as string, a go channel to write to and an integer
+*/
 func (s *Session) Execute(input string, out chan interface{}, _ int) {
 	defer close(out)
+	fmt.Printf("executing query: %s \n", input)
 	s.err = nil
 	s.wk.results = out
 	var err error
@@ -143,6 +150,8 @@ func (s *Session) Execute(input string, out chan interface{}, _ int) {
 	} else {
 		value, err = s.runUnsafe(s.script)
 	}
+	fmt.Printf("value %s \n", value)
+	// adding Result to out
 	out <- &Result{
 		metaresult: true,
 		err:        err,
@@ -249,6 +258,7 @@ func (s *Session) Collate(result interface{}) {
 }
 
 func (s *Session) Results() (interface{}, error) {
+	fmt.Println("Results()")
 	defer s.Clear()
 	if s.err != nil {
 		return nil, s.err
@@ -257,6 +267,9 @@ func (s *Session) Results() (interface{}, error) {
 	case <-s.kill:
 		return nil, ErrKillTimeout
 	default:
+		fmt.Println("dataOutput")
+		fmt.Println(s.dataOutput)
+		//debug.PrintStack()
 		return s.dataOutput, nil
 	}
 }

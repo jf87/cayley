@@ -15,6 +15,7 @@
 package memstore
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"testing"
@@ -80,12 +81,15 @@ type pair struct {
 }
 
 func TestMemstore(t *testing.T) {
+	fmt.Println("TestMemstore")
 	qs, _, index := makeTestStore(simpleGraph)
 	if size := qs.Size(); size != int64(len(simpleGraph)) {
 		t.Errorf("Quad store has unexpected size, got:%d expected %d", size, len(simpleGraph))
 	}
+	fmt.Println(qs)
 	for _, test := range index {
 		v := qs.ValueOf(test.query)
+		fmt.Printf("valueof %s \n", v)
 		switch v := v.(type) {
 		default:
 			t.Errorf("ValueOf(%q) returned unexpected type, got:%T expected int64", test.query, v)

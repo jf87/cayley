@@ -18,6 +18,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"hash"
 	"sync"
 
@@ -30,6 +31,7 @@ import (
 	"github.com/google/cayley/quad"
 )
 
+// Register the backend for cayley
 func init() {
 	graph.RegisterQuadStore("mongo", true, newQuadStore, createNewMongoGraph)
 }
@@ -86,9 +88,14 @@ func createNewMongoGraph(addr string, options graph.Options) error {
 }
 
 func newQuadStore(addr string, options graph.Options) (graph.QuadStore, error) {
+	fmt.Println("newQuadStore")
+	fmt.Println(addr)
+	fmt.Println(options)
 	var qs QuadStore
 	conn, err := mgo.Dial(addr)
 	if err != nil {
+		fmt.Println("ERROR")
+		fmt.Println(nil)
 		return nil, err
 	}
 	conn.SetSafe(&mgo.Safe{})

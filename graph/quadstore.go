@@ -23,6 +23,8 @@ package graph
 
 import (
 	"errors"
+	"fmt"
+	//"runtime/debug"
 
 	"github.com/barakmich/glog"
 	"github.com/google/cayley/quad"
@@ -148,14 +150,17 @@ type NewStoreFunc func(string, Options) (QuadStore, error)
 type InitStoreFunc func(string, Options) error
 
 type register struct {
-	newFunc      NewStoreFunc
-	initFunc     InitStoreFunc
+	newFunc      NewStoreFunc  //create new store
+	initFunc     InitStoreFunc // initialize existing store
 	isPersistent bool
 }
 
 var storeRegistry = make(map[string]register)
 
+// This is called by the different init() of the different backend implementation to register themselves
 func RegisterQuadStore(name string, persists bool, newFunc NewStoreFunc, initFunc InitStoreFunc) {
+	fmt.Println(name)
+	//debug.PrintStack()
 	if _, found := storeRegistry[name]; found {
 		panic("already registered QuadStore " + name)
 	}
@@ -166,11 +171,13 @@ func RegisterQuadStore(name string, persists bool, newFunc NewStoreFunc, initFun
 	}
 }
 
+// takes a databaseType as name (e.g., memstore) and respective path and options
 func NewQuadStore(name, dbpath string, opts Options) (QuadStore, error) {
 	r, registered := storeRegistry[name]
 	if !registered {
 		return nil, errors.New("quadstore: name '" + name + "' is not registered")
 	}
+	fmt.Println(r)
 	return r.newFunc(dbpath, opts)
 }
 

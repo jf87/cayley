@@ -579,6 +579,7 @@ func (t *Tree) SeekLast() (e *Enumerator, err error) {
 // Set sets the value associated with k.
 func (t *Tree) Set(k int64, v struct{}) {
 	//dbg("--- PRE Set(%v, %v)\n%s", k, v, t.dump())
+	fmt.Printf("--- PRE Set(%v, %v)\n", k, v)
 	//defer func() {
 	//	dbg("--- POST\n%s\n====\n", t.dump())
 	//}()

@@ -31,7 +31,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/barakmich/glog"
+	"github.com/barakmich/glog" //leveled execution logs for go
 
 	"github.com/google/cayley/config"
 	"github.com/google/cayley/db"
@@ -52,7 +52,9 @@ import (
 )
 
 var (
-	quadFile           = flag.String("quads", "", "Quad file to load before going to REPL.")
+	quadFile = flag.String("quads", "", "Quad file to load before going to REPL.")
+	// NOTE N-quads statements are a sequence of RDF terms representing the subject,
+	// predicate, object and graph label of an RDF Triple and the graph it is part of in a dataset.
 	quadType           = flag.String("format", "cquad", `Quad format to use for loading ("cquad" or "nquad").`)
 	cpuprofile         = flag.String("prof", "", "Output profiling file.")
 	queryLanguage      = flag.String("query_lang", "gremlin", "Use this parser as the query language.")
@@ -203,6 +205,7 @@ func main() {
 		}
 
 	case "load":
+		fmt.Println("LOAD")
 		handle, err = db.Open(cfg)
 		if err != nil {
 			break
@@ -215,6 +218,7 @@ func main() {
 		handle.Close()
 
 	case "repl":
+		fmt.Println("REPL")
 		handle, err = db.Open(cfg)
 		if err != nil {
 			break
@@ -242,6 +246,7 @@ func main() {
 			}
 		}
 
+		// serve the graph handle via http
 		http.Serve(handle, cfg)
 
 		handle.Close()

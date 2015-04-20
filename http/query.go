@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/barakmich/glog"
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/google/cayley/query"
@@ -43,14 +44,17 @@ func WrapErrResult(err error) ([]byte, error) {
 
 func WrapResult(result interface{}) ([]byte, error) {
 	var wrap SuccessQueryWrapper
+	fmt.Println(result)
 	wrap.Result = result
 	return json.MarshalIndent(wrap, "", " ")
 }
 
+// running a query
 func Run(q string, ses query.HTTP) (interface{}, error) {
 	c := make(chan interface{}, 5)
 	go ses.Execute(q, c, 100)
 	for res := range c {
+		fmt.Printf("res %s \n", res)
 		ses.Collate(res)
 	}
 	return ses.Results()
@@ -80,6 +84,8 @@ func (api *API) ServeV1Query(w http.ResponseWriter, r *http.Request, params http
 		return jsonResponse(w, 400, err)
 	}
 	code := string(bodyBytes)
+	glog.Infof("Received the following POST: %s", code)
+
 	result, err := ses.Parse(code)
 	switch result {
 	case query.Parsed:
